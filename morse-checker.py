@@ -6,9 +6,17 @@
 
 
 
+
 import pygame_widgets
 import pygame
 import time
+
+from morse_data import Morse
+
+
+DISPLAY_COLOR = (0, 0, 0)
+COLOR_ON = (0, 255, 0)
+COLOR_OFF = (255, 0, 0)
 
 
 def morse_grid(surface: pygame.Surface) -> ():
@@ -28,23 +36,26 @@ def morse_grid(surface: pygame.Surface) -> ():
     return dits_array
 
 
-def render_reference(surface: pygame.Surface, dits_array, y_offset):
+def render_reference(surface: pygame.Surface, dits_array, y_offset, character = None):
 
     for dit in dits_array:
         pygame.draw.rect(surface, (176, 176, 176), dit.move(0, y_offset), border_radius=3, width=2)
 
-def render_marker(surface: pygame.Surface, y_offset, startTime, maxTime, current_time):
+def render_marker(surface: pygame.Surface, y_offset, startTime, maxTime, current_time, on: bool) -> bool:
     '''
       Draw a marker
     '''
     surface_rect = surface.get_rect()
     x_offset = (surface_rect.width // 33) // 2
     dits_width =  (32 * (surface_rect.width // 33))
-    x_max = x_offset + (32 * dits_width)
+    x_max = x_offset + dits_width
+    x = x_offset + ((time.time() - startTime) * 100 // maxTime)
+    if ( x < x_max):
+        line_color = COLOR_ON if on is True else COLOR_OFF
+        pygame.draw.line(surface, line_color, (x, y_offset), (x, y_offset + 20), width = 1)
+        return True
 
-    x = (time.time() - startTime) // maxTime
-
-    line(surface, (255,0,0), (x, y_offset), (x, y_offset + 20), width = 1)
+    return False
 
 def game():
     #Pygame setup
@@ -57,22 +68,31 @@ def game():
 
     dits_array = morse_grid(win)
     render_reference(win, dits_array, 20)
-    render_reference(win, dits_array, 40)
 
     pygame.display.flip()
 
 
     run = True
     while run:
+        paddle_press = False
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 run = False
                 quit()
+#            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+#                paddle_press = True
 
+        keys_pressed = pygame.key.get_pressed()
+        paddle_press = keys_pressed[pygame.K_SPACE]
 
-        pygame_widgets.update(events)
+        if render_marker(win, 60, startTime, 1.0, time.time(), paddle_press) is False:
+            startTime = time.time()
+            win.fill(DISPLAY_COLOR)
+            render_reference(win, dits_array, 20)
+
+    
         pygame.display.update()
 
 
