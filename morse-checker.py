@@ -32,9 +32,17 @@ from morse_data import Morse
 DISPLAY_COLOR = (0, 0, 0)
 COLOR_ON = (0, 255, 0)
 COLOR_OFF = (255, 0, 0)
+TEXT_COLOR = (255, 0, 255)
+BACKGROUND_COLOR = DISPLAY_COLOR
 
 
 def morse_grid(surface: pygame.Surface) -> ():
+    '''
+        Calculate the morse grid.
+
+        Worst case morse symbol is 0 (5 x dah)
+        Leading 12 dit space
+    '''
     surface_rect = surface.get_rect()
 
     dit_width = surface_rect.width // 33
@@ -51,22 +59,33 @@ def morse_grid(surface: pygame.Surface) -> ():
     return dits_array
 
 
+def render_symbol(surface: pygame.Surface, character):
+    '''
+        Show the morse symbol as character
+
+        Reference: https://www.geeksforgeeks.org/python-display-text-to-pygame-window/
+    '''
+    if character is not None:
+        surface_rect = surface.get_rect()
+        font = pygame.font.Font('freesansbold.ttf', 128)
+        text = font.render(character, True, TEXT_COLOR, BACKGROUND_COLOR)
+        textRect = text.get_rect()
+        textRect.center = (surface_rect.width // 2, 200)
+
+        surface.blit(text, textRect)
+
+
+
 def render_reference(surface: pygame.Surface, dits_array, y_offset, character = None):
     '''
-        Render a dits reference (a dit is the 
+        Render a dits reference and morse pattern
     '''
     dit_pattern = [False for element in range(32)]
 
     if character is not None and character in Morse.morse_dict:
-
-#        import pdb
-#        pdb.set_trace()
-
         morse_pattern = Morse.morse_dict[character]
         for i in range(len(morse_pattern)):
             dit_pattern[i + 12] = True if morse_pattern[i] is True else False
-
-    print(f"Dit Pattern: {dit_pattern}")
 
     for dit in dits_array:
         if character is not None and character in Morse.morse_dict:
@@ -120,8 +139,11 @@ def game():
                 run = False
                 quit()
             if event.type == pygame.KEYDOWN:
-                user_text = event.unicode
-                morse_symbol = user_text[0]
+                keys = pygame.key.get_pressed()
+                if not keys[pygame.K_SPACE]:
+                    user_text = event.unicode
+                    if len(user_text):
+                        morse_symbol = user_text[0].lower()
 
         keys_pressed = pygame.key.get_pressed()
         paddle_press = keys_pressed[pygame.K_SPACE]
@@ -130,6 +152,7 @@ def game():
             startTime = time.time()
             win.fill(DISPLAY_COLOR)
             render_reference(win, dits_array, 20, character = morse_symbol)
+            render_symbol(win, morse_symbol)
 
     
         pygame.display.update()
