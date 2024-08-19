@@ -26,7 +26,7 @@ import time
 from morse_data import Morse
 
 
-DITS_PRE_COUNT = 12
+DITS_PRE_COUNT = 5
 DITS_COUNT = DITS_PRE_COUNT + 20
 DITS_DIVIDER = DITS_COUNT + 1
 
@@ -38,12 +38,11 @@ TEXT_COLOR = (255, 0, 255)
 BACKGROUND_COLOR = DISPLAY_COLOR
 
 
-def morse_grid(surface: pygame.Surface) -> ():
+def morse_grid(surface: pygame.Surface) -> []:
     '''
         Calculate the morse grid.
 
         Worst case morse symbol is 0 (5 x dah)
-        Leading 12 dit space
     '''
     surface_rect = surface.get_rect()
 
