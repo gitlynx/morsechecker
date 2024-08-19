@@ -19,14 +19,16 @@
     - There is minimal 3 'dit' space between letters.
     - There is minimal 7 'dit' space between words.
 """
-
-
-
 import pygame_widgets
 import pygame
 import time
 
 from morse_data import Morse
+
+
+DITS_PRE_COUNT = 12
+DITS_COUNT = DITS_PRE_COUNT + 20
+DITS_DIVIDER = DITS_COUNT + 1
 
 
 DISPLAY_COLOR = (0, 0, 0)
@@ -45,14 +47,14 @@ def morse_grid(surface: pygame.Surface) -> ():
     '''
     surface_rect = surface.get_rect()
 
-    dit_width = surface_rect.width // 33
+    dit_width = surface_rect.width // DITS_DIVIDER
     dit_offset = dit_width // 2
 
     dit_top = surface_rect.top
     dit_height = 30
 
     dits_array = []
-    for i in range(32):
+    for i in range(DITS_COUNT):
         left = dit_offset + i * dit_width
         dits_array.append(pygame.Rect(left, dit_top, dit_width, dit_height))
 
@@ -80,12 +82,12 @@ def render_reference(surface: pygame.Surface, dits_array, y_offset, character = 
     '''
         Render a dits reference and morse pattern
     '''
-    dit_pattern = [False for element in range(32)]
+    dit_pattern = [False for element in range(DITS_COUNT)]
 
     if character is not None and character in Morse.morse_dict:
         morse_pattern = Morse.morse_dict[character]
         for i in range(len(morse_pattern)):
-            dit_pattern[i + 12] = True if morse_pattern[i] is True else False
+            dit_pattern[i + DITS_PRE_COUNT] = True if morse_pattern[i] is True else False
 
     for dit in dits_array:
         if character is not None and character in Morse.morse_dict:
@@ -101,8 +103,8 @@ def render_marker(surface: pygame.Surface, y_offset, startTime, maxTime, current
       Draw a marker
     '''
     surface_rect = surface.get_rect()
-    x_offset = (surface_rect.width // 33) // 2
-    dits_width =  (32 * (surface_rect.width // 33))
+    x_offset = (surface_rect.width // DITS_DIVIDER) // 2
+    dits_width =  (DITS_COUNT * (surface_rect.width // DITS_DIVIDER))
     x_max = x_offset + dits_width
     x = x_offset + ((time.time() - startTime) * 100 // maxTime)
     if ( x < x_max):
