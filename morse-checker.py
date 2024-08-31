@@ -23,7 +23,7 @@ import pygame_widgets
 import pygame
 import time
 
-from morse_data import Morse
+from morsedata import Morse
 
 
 DITS_PRE_COUNT = 5
@@ -69,7 +69,7 @@ def render_symbol(surface: pygame.Surface, character):
     if character is not None:
         surface_rect = surface.get_rect()
         font = pygame.font.Font('freesansbold.ttf', 128)
-        text = font.render(character, True, TEXT_COLOR, BACKGROUND_COLOR)
+        text = font.render(character.upper(), True, TEXT_COLOR, BACKGROUND_COLOR)
         textRect = text.get_rect()
         textRect.center = (surface_rect.width // 2, 200)
 
