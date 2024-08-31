@@ -23,8 +23,10 @@ import pygame_widgets
 import pygame
 import time
 
+import RPi.GPIO as GPIO
 from morsedata import Morse
 
+PADDLE_PIN = 18
 
 DITS_PRE_COUNT = 5
 DITS_COUNT = DITS_PRE_COUNT + 20
@@ -113,6 +115,15 @@ def render_marker(surface: pygame.Surface, y_offset, startTime, maxTime, current
 
     return False
 
+def setup_paddle():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(PADDLE_PIN, GPIO.IN)
+
+def get_paddle() -> bool:
+    if GPIO.input(PADDLE_PIN) == 0:
+        return True
+    return False
+
 def game():
     morse_symbol = None
 
@@ -120,9 +131,8 @@ def game():
     pygame.init()
     win = pygame.display.set_mode((1000,600))
 
-
     startTime = time.time()
-
+    setup_paddle()
 
     dits_array = morse_grid(win)
     render_reference(win, dits_array, 20)
@@ -146,8 +156,13 @@ def game():
                     if len(user_text):
                         morse_symbol = user_text[0].lower()
 
+        # Get ketboard
         keys_pressed = pygame.key.get_pressed()
         paddle_press = keys_pressed[pygame.K_SPACE]
+
+        # Get GPIO paddle status
+        if get_paddle():
+            paddle_press = True
 
         if render_marker(win, 60, startTime, 1.0, time.time(), paddle_press) is False:
             startTime = time.time()
